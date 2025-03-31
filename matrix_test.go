@@ -19,7 +19,7 @@ func TestNewMatrix(t *testing.T) {
 
 		// flag to indicate whether the test should pass.
 		shouldPass     bool
-		expectedResult matrix
+		expectedResult Matrix
 		expectedErr    error
 	}{
 		// Test case - 1.
@@ -60,20 +60,20 @@ func TestNewMatrix(t *testing.T) {
 		if actualErr == nil && testCase.shouldPass {
 			if testCase.rows != len(actualResult) {
 				// End the tests here if the the size doesn't match number of rows.
-				t.Fatalf("Test %d: Expected the size of the row of the new matrix to be `%d`, but instead found `%d`", i+1, testCase.rows, len(actualResult))
+				t.Fatalf("Test %d: Expected the size of the row of the new Matrix to be `%d`, but instead found `%d`", i+1, testCase.rows, len(actualResult))
 			}
 			// Iterating over each row and validating the size of the column.
 			for j, row := range actualResult {
 				// If the row check passes, verify the size of each columns.
 				if testCase.columns != len(row) {
-					t.Errorf("Test %d: Row %d: Expected the size of the column of the new matrix to be `%d`, but instead found `%d`", i+1, j+1, testCase.columns, len(row))
+					t.Errorf("Test %d: Row %d: Expected the size of the column of the new Matrix to be `%d`, but instead found `%d`", i+1, j+1, testCase.columns, len(row))
 				}
 			}
 		}
 	}
 }
 
-// TestMatrixIdentity - validates the method for returning identity matrix of given size.
+// TestMatrixIdentity - validates the method for returning identity Matrix of given size.
 func TestMatrixIdentity(t *testing.T) {
 	m, err := identityMatrix(3)
 	if err != nil {
@@ -86,7 +86,7 @@ func TestMatrixIdentity(t *testing.T) {
 	}
 }
 
-// Tests validate the output of matrix multiplication method.
+// Tests validate the output of Matrix multiplication method.
 func TestMatrixMultiply(t *testing.T) {
 	m1, err := newMatrixData(
 		[][]byte{
@@ -116,11 +116,11 @@ func TestMatrixMultiply(t *testing.T) {
 	}
 }
 
-// Tests validate the output of the method with computes inverse of matrix.
+// Tests validate the output of the method with computes inverse of Matrix.
 func TestMatrixInverse(t *testing.T) {
 	testCases := []struct {
 		matrixData [][]byte
-		// expected inverse matrix.
+		// expected inverse Matrix.
 		expectedResult string
 		// flag indicating whether the test should pass.
 		shouldPass  bool
@@ -129,13 +129,13 @@ func TestMatrixInverse(t *testing.T) {
 		// Test case - 1.
 		// Test case validating inverse of the input Matrix.
 		{
-			// input data to construct the matrix.
+			// input data to construct the Matrix.
 			[][]byte{
 				{56, 23, 98},
 				{3, 100, 200},
 				{45, 201, 123},
 			},
-			// expected Inverse matrix.
+			// expected Inverse Matrix.
 			"[[175, 133, 33], [130, 13, 245], [112, 35, 126]]",
 			// test is expected to pass.
 			true,
@@ -144,7 +144,7 @@ func TestMatrixInverse(t *testing.T) {
 		// Test case - 2.
 		// Test case validating inverse of the input Matrix.
 		{
-			// input data to construct the matrix.
+			// input data to construct the Matrix.
 			[][]byte{
 				{1, 0, 0, 0, 0},
 				{0, 1, 0, 0, 0},
@@ -152,7 +152,7 @@ func TestMatrixInverse(t *testing.T) {
 				{0, 0, 0, 0, 1},
 				{7, 7, 6, 6, 1},
 			},
-			// expectedInverse matrix.
+			// expectedInverse Matrix.
 			"[[1, 0, 0, 0, 0]," +
 				" [0, 1, 0, 0, 0]," +
 				" [123, 123, 1, 122, 122]," +
@@ -162,7 +162,7 @@ func TestMatrixInverse(t *testing.T) {
 			true,
 			nil,
 		},
-		// Test case with a non-square matrix.
+		// Test case with a non-square Matrix.
 		// expected to fail with errNotSquare.
 		{
 			[][]byte{
@@ -174,7 +174,7 @@ func TestMatrixInverse(t *testing.T) {
 			false,
 			errNotSquare,
 		},
-		// Test case with singular matrix.
+		// Test case with singular Matrix.
 		// expected to fail with error errSingular.
 		{
 
@@ -210,7 +210,7 @@ func TestMatrixInverse(t *testing.T) {
 		// are verified for correctness here.
 		if actualErr == nil && testCase.shouldPass {
 			if testCase.expectedResult != actualResult.String() {
-				t.Errorf("Test %d: The inverse matrix doesn't match the expected result", i+1)
+				t.Errorf("Test %d: The inverse Matrix doesn't match the expected result", i+1)
 			}
 		}
 	}

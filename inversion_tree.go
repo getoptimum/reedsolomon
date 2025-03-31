@@ -19,12 +19,12 @@ type inversionTree struct {
 }
 
 type inversionNode struct {
-	matrix   matrix
+	matrix   Matrix
 	children []*inversionNode
 }
 
 // newInversionTree initializes a tree for storing inverted matrices.
-// Note that the root node is the identity matrix as it implies
+// Note that the root node is the identity Matrix as it implies
 // there were no errors with the original data.
 func newInversionTree(dataShards, parityShards int) *inversionTree {
 	identity, _ := identityMatrix(dataShards)
@@ -36,9 +36,9 @@ func newInversionTree(dataShards, parityShards int) *inversionTree {
 	}
 }
 
-// GetInvertedMatrix returns the cached inverted matrix or nil if it
+// GetInvertedMatrix returns the cached inverted Matrix or nil if it
 // is not found in the tree keyed on the indices of invalid rows.
-func (t *inversionTree) GetInvertedMatrix(invalidIndices []int) matrix {
+func (t *inversionTree) GetInvertedMatrix(invalidIndices []int) Matrix {
 	if t == nil {
 		return nil
 	}
@@ -47,29 +47,29 @@ func (t *inversionTree) GetInvertedMatrix(invalidIndices []int) matrix {
 	defer t.mutex.RUnlock()
 
 	// If no invalid indices were give we should return the root
-	// identity matrix.
+	// identity Matrix.
 	if len(invalidIndices) == 0 {
 		return t.root.matrix
 	}
 
-	// Recursively search for the inverted matrix in the tree, passing in
+	// Recursively search for the inverted Matrix in the tree, passing in
 	// 0 as the parent index as we start at the root of the tree.
 	return t.root.getInvertedMatrix(invalidIndices, 0)
 }
 
-// errAlreadySet is returned if the root node matrix is overwritten
-var errAlreadySet = errors.New("the root node identity matrix is already set")
+// errAlreadySet is returned if the root node Matrix is overwritten
+var errAlreadySet = errors.New("the root node identity Matrix is already set")
 
-// InsertInvertedMatrix inserts a new inverted matrix into the tree
+// InsertInvertedMatrix inserts a new inverted Matrix into the tree
 // keyed by the indices of invalid rows.  The total number of shards
 // is required for creating the proper length lists of child nodes for
 // each node.
-func (t *inversionTree) InsertInvertedMatrix(invalidIndices []int, matrix matrix, shards int) error {
+func (t *inversionTree) InsertInvertedMatrix(invalidIndices []int, matrix Matrix, shards int) error {
 	if t == nil {
 		return nil
 	}
 	// If no invalid indices were given then we are done because the
-	// root node is already set with the identity matrix.
+	// root node is already set with the identity Matrix.
 	if len(invalidIndices) == 0 {
 		return errAlreadySet
 	}
@@ -82,15 +82,15 @@ func (t *inversionTree) InsertInvertedMatrix(invalidIndices []int, matrix matrix
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 
-	// Recursively create nodes for the inverted matrix in the tree until
-	// we reach the node to insert the matrix to.  We start by passing in
+	// Recursively create nodes for the inverted Matrix in the tree until
+	// we reach the node to insert the Matrix to.  We start by passing in
 	// 0 as the parent index as we start at the root of the tree.
 	t.root.insertInvertedMatrix(invalidIndices, matrix, shards, 0)
 
 	return nil
 }
 
-func (n *inversionNode) getInvertedMatrix(invalidIndices []int, parent int) matrix {
+func (n *inversionNode) getInvertedMatrix(invalidIndices []int, parent int) Matrix {
 	// Get the child node to search next from the list of children.  The
 	// list of children starts relative to the parent index passed in
 	// because the indices of invalid rows is sorted (by default).  As we
@@ -101,7 +101,7 @@ func (n *inversionNode) getInvertedMatrix(invalidIndices []int, parent int) matr
 	node := n.children[firstIndex-parent]
 
 	// If the child node doesn't exist in the list yet, fail fast by
-	// returning, so we can construct and insert the proper inverted matrix.
+	// returning, so we can construct and insert the proper inverted Matrix.
 	if node == nil {
 		return nil
 	}
@@ -115,13 +115,13 @@ func (n *inversionNode) getInvertedMatrix(invalidIndices []int, parent int) matr
 		return node.getInvertedMatrix(invalidIndices[1:], firstIndex+1)
 	}
 	// If there aren't any more invalid indices to search, we've found our
-	// node.  Return it, however keep in mind that the matrix could still be
+	// node.  Return it, however keep in mind that the Matrix could still be
 	// nil because intermediary nodes in the tree are created sometimes with
 	// their inversion matrices uninitialized.
 	return node.matrix
 }
 
-func (n *inversionNode) insertInvertedMatrix(invalidIndices []int, matrix matrix, shards, parent int) {
+func (n *inversionNode) insertInvertedMatrix(invalidIndices []int, matrix Matrix, shards, parent int) {
 	// As above, get the child node to search next from the list of children.
 	// The list of children starts relative to the parent index passed in
 	// because the indices of invalid rows is sorted (by default).  As we
@@ -149,7 +149,7 @@ func (n *inversionNode) insertInvertedMatrix(invalidIndices []int, matrix matrix
 
 	// If there's more than one invalid index left in the list we should
 	// keep searching recursively in order to find the node to add our
-	// matrix.
+	// Matrix.
 	if len(invalidIndices) > 1 {
 		// As above, search recursively on the child node by passing in
 		// the invalid indices with the first index popped off the front.
@@ -158,7 +158,7 @@ func (n *inversionNode) insertInvertedMatrix(invalidIndices []int, matrix matrix
 		node.insertInvertedMatrix(invalidIndices[1:], matrix, shards, firstIndex+1)
 	} else {
 		// If there aren't any more invalid indices to search, we've found our
-		// node.  Cache the inverted matrix in this node.
+		// node.  Cache the inverted Matrix in this node.
 		node.matrix = matrix
 	}
 }

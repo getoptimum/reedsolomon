@@ -68,7 +68,7 @@ func isIncreasingAndContainsDataRow(indices []int) bool {
 			return false
 		}
 	}
-	// Data rows are in the upper square portion of the matrix.
+	// Data rows are in the upper square portion of the Matrix.
 	return indices[0] < cols
 }
 
@@ -103,7 +103,7 @@ func incrementIndicesUntilIncreasingAndContainsDataRow(
 	}
 }
 
-func findSingularSubMatrix(m matrix) (matrix, error) {
+func findSingularSubMatrix(m Matrix) (Matrix, error) {
 	rows := len(m)
 	cols := len(m[0])
 	rowIndices := make([]int, cols)
@@ -133,7 +133,7 @@ func TestBuildMatrixJerasure(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	refMatrix := matrix{
+	refMatrix := Matrix{
 		{1, 1, 1, 1, 1, 1, 1, 1},
 		{1, 55, 39, 73, 84, 181, 225, 217},
 		{1, 39, 217, 161, 92, 60, 172, 90},
@@ -142,14 +142,14 @@ func TestBuildMatrixJerasure(t *testing.T) {
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
 			if i != j && m[i][j] != 0 || i == j && m[i][j] != 1 {
-				t.Fatal("Top part of the matrix is not identity")
+				t.Fatal("Top part of the Matrix is not identity")
 			}
 		}
 	}
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 8; j++ {
 			if m[8+i][j] != refMatrix[i][j] {
-				t.Fatal("Coding matrix for EC 8+4 differs from Jerasure")
+				t.Fatal("Coding Matrix for EC 8+4 differs from Jerasure")
 			}
 		}
 	}
@@ -169,10 +169,10 @@ func TestBuildMatrixPAR1Singular(t *testing.T) {
 	}
 
 	if singularSubMatrix == nil {
-		t.Fatal("No singular sub-matrix found")
+		t.Fatal("No singular sub-Matrix found")
 	}
 
-	t.Logf("matrix %s has singular sub-matrix %s", m, singularSubMatrix)
+	t.Logf("Matrix %s has singular sub-Matrix %s", m, singularSubMatrix)
 }
 
 func testOpts() [][]Option {
@@ -283,8 +283,8 @@ func TestEncoding(t *testing.T) {
 	}
 }
 
-// matrix sizes to test.
-// note that par1 matrix will fail on some combinations.
+// Matrix sizes to test.
+// note that par1 Matrix will fail on some combinations.
 func testSizes() [][2]int {
 	if testing.Short() {
 		return [][2]int{
@@ -1810,7 +1810,7 @@ func TestCodeSomeShards(t *testing.T) {
 func TestStandardMatrices(t *testing.T) {
 	if testing.Short() || runtime.GOMAXPROCS(0) < 4 {
 		// Runtime ~15s.
-		t.Skip("Skipping slow matrix check")
+		t.Skip("Skipping slow Matrix check")
 	}
 	for i := 1; i < 256; i++ {
 		i := i
@@ -1832,7 +1832,7 @@ func TestStandardMatrices(t *testing.T) {
 				r, err := New(i, j, testOptions(WithFastOneParityMatrix())...)
 				if err != nil {
 					// We are not supposed to write to t from goroutines.
-					t.Fatal("creating matrix size", i, j, ":", err)
+					t.Fatal("creating Matrix size", i, j, ":", err)
 				}
 				err = r.Encode(sh)
 				if err != nil {
@@ -1871,7 +1871,7 @@ func TestStandardMatrices(t *testing.T) {
 func TestCauchyMatrices(t *testing.T) {
 	if testing.Short() || runtime.GOMAXPROCS(0) < 4 {
 		// Runtime ~15s.
-		t.Skip("Skipping slow matrix check")
+		t.Skip("Skipping slow Matrix check")
 	}
 	for i := 1; i < 256; i++ {
 		i := i
@@ -1892,7 +1892,7 @@ func TestCauchyMatrices(t *testing.T) {
 				r, err := New(i, j, testOptions(WithCauchyMatrix(), WithFastOneParityMatrix())...)
 				if err != nil {
 					// We are not supposed to write to t from goroutines.
-					t.Fatal("creating matrix size", i, j, ":", err)
+					t.Fatal("creating Matrix size", i, j, ":", err)
 				}
 				err = r.Encode(sh)
 				if err != nil {
@@ -1931,7 +1931,7 @@ func TestCauchyMatrices(t *testing.T) {
 func TestPar1Matrices(t *testing.T) {
 	if testing.Short() || runtime.GOMAXPROCS(0) < 4 {
 		// Runtime ~15s.
-		t.Skip("Skipping slow matrix check")
+		t.Skip("Skipping slow Matrix check")
 	}
 	for i := 1; i < 256; i++ {
 		i := i
@@ -1952,7 +1952,7 @@ func TestPar1Matrices(t *testing.T) {
 				r, err := New(i, j, testOptions(WithPAR1Matrix())...)
 				if err != nil {
 					// We are not supposed to write to t from goroutines.
-					t.Fatal("creating matrix size", i, j, ":", err)
+					t.Fatal("creating Matrix size", i, j, ":", err)
 				}
 				err = r.Encode(sh)
 				if err != nil {

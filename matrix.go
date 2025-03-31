@@ -15,10 +15,10 @@ import (
 )
 
 // byte[row][col]
-type matrix [][]byte
+type Matrix [][]byte
 
-// newMatrix returns a matrix of zeros.
-func newMatrix(rows, cols int) (matrix, error) {
+// newMatrix returns a Matrix of zeros.
+func newMatrix(rows, cols int) (Matrix, error) {
 	if rows <= 0 {
 		return nil, errInvalidRowSize
 	}
@@ -26,17 +26,17 @@ func newMatrix(rows, cols int) (matrix, error) {
 		return nil, errInvalidColSize
 	}
 
-	m := matrix(make([][]byte, rows))
+	m := Matrix(make([][]byte, rows))
 	for i := range m {
 		m[i] = make([]byte, cols)
 	}
 	return m, nil
 }
 
-// NewMatrixData initializes a matrix with the given row-major data.
+// NewMatrixData initializes a Matrix with the given row-major data.
 // Note that data is not copied from input.
-func newMatrixData(data [][]byte) (matrix, error) {
-	m := matrix(data)
+func NewMatrixData(data [][]byte) (Matrix, error) {
+	m := Matrix(data)
 	err := m.Check()
 	if err != nil {
 		return nil, err
@@ -44,8 +44,8 @@ func newMatrixData(data [][]byte) (matrix, error) {
 	return m, nil
 }
 
-// IdentityMatrix returns an identity matrix of the given size.
-func identityMatrix(size int) (matrix, error) {
+// IdentityMatrix returns an identity Matrix of the given size.
+func identityMatrix(size int) (Matrix, error) {
 	m, err := newMatrix(size, size)
 	if err != nil {
 		return nil, err
@@ -56,16 +56,16 @@ func identityMatrix(size int) (matrix, error) {
 	return m, nil
 }
 
-// errInvalidRowSize will be returned if attempting to create a matrix with negative or zero row number.
+// errInvalidRowSize will be returned if attempting to create a Matrix with negative or zero row number.
 var errInvalidRowSize = errors.New("invalid row size")
 
-// errInvalidColSize will be returned if attempting to create a matrix with negative or zero column number.
+// errInvalidColSize will be returned if attempting to create a Matrix with negative or zero column number.
 var errInvalidColSize = errors.New("invalid column size")
 
-// errColSizeMismatch is returned if the size of matrix columns mismatch.
+// errColSizeMismatch is returned if the size of Matrix columns mismatch.
 var errColSizeMismatch = errors.New("column size is not the same for all rows")
 
-func (m matrix) Check() error {
+func (m Matrix) Check() error {
 	rows := len(m)
 	if rows == 0 {
 		return errInvalidRowSize
@@ -83,10 +83,10 @@ func (m matrix) Check() error {
 	return nil
 }
 
-// String returns a human-readable string of the matrix contents.
+// String returns a human-readable string of the Matrix contents.
 //
 // Example: [[1, 2], [3, 4]]
-func (m matrix) String() string {
+func (m Matrix) String() string {
 	rowOut := make([]string, 0, len(m))
 	for _, row := range m {
 		colOut := make([]string, 0, len(row))
@@ -98,9 +98,9 @@ func (m matrix) String() string {
 	return "[" + strings.Join(rowOut, ", ") + "]"
 }
 
-// Multiply multiplies this matrix (the one on the left) by another
-// matrix (the one on the right) and returns a new matrix with the result.
-func (m matrix) Multiply(right matrix) (matrix, error) {
+// Multiply multiplies this Matrix (the one on the left) by another
+// Matrix (the one on the right) and returns a new Matrix with the result.
+func (m Matrix) Multiply(right Matrix) (Matrix, error) {
 	if len(m[0]) != len(right) {
 		return nil, fmt.Errorf("columns on left (%d) is different than rows on right (%d)", len(m[0]), len(right))
 	}
@@ -117,8 +117,8 @@ func (m matrix) Multiply(right matrix) (matrix, error) {
 	return result, nil
 }
 
-// Augment returns the concatenation of this matrix and the matrix on the right.
-func (m matrix) Augment(right matrix) (matrix, error) {
+// Augment returns the concatenation of this Matrix and the Matrix on the right.
+func (m Matrix) Augment(right Matrix) (Matrix, error) {
 	if len(m) != len(right) {
 		return nil, errMatrixSize
 	}
@@ -136,10 +136,10 @@ func (m matrix) Augment(right matrix) (matrix, error) {
 	return result, nil
 }
 
-// errMatrixSize is returned if matrix dimensions are doesn't match.
-var errMatrixSize = errors.New("matrix sizes do not match")
+// errMatrixSize is returned if Matrix dimensions are doesn't match.
+var errMatrixSize = errors.New("Matrix sizes do not match")
 
-func (m matrix) SameSize(n matrix) error {
+func (m Matrix) SameSize(n Matrix) error {
 	if len(m) != len(n) {
 		return errMatrixSize
 	}
@@ -151,8 +151,8 @@ func (m matrix) SameSize(n matrix) error {
 	return nil
 }
 
-// SubMatrix returns a part of this matrix. Data is copied.
-func (m matrix) SubMatrix(rmin, cmin, rmax, cmax int) (matrix, error) {
+// SubMatrix returns a part of this Matrix. Data is copied.
+func (m Matrix) SubMatrix(rmin, cmin, rmax, cmax int) (Matrix, error) {
 	result, err := newMatrix(rmax-rmin, cmax-cmin)
 	if err != nil {
 		return nil, err
@@ -166,8 +166,8 @@ func (m matrix) SubMatrix(rmin, cmin, rmax, cmax int) (matrix, error) {
 	return result, nil
 }
 
-// SwapRows Exchanges two rows in the matrix.
-func (m matrix) SwapRows(r1, r2 int) error {
+// SwapRows Exchanges two rows in the Matrix.
+func (m Matrix) SwapRows(r1, r2 int) error {
 	if r1 < 0 || len(m) <= r1 || r2 < 0 || len(m) <= r2 {
 		return errInvalidRowSize
 	}
@@ -175,21 +175,21 @@ func (m matrix) SwapRows(r1, r2 int) error {
 	return nil
 }
 
-// IsSquare will return true if the matrix is square, otherwise false.
-func (m matrix) IsSquare() bool {
+// IsSquare will return true if the Matrix is square, otherwise false.
+func (m Matrix) IsSquare() bool {
 	return len(m) == len(m[0])
 }
 
-// errSingular is returned if the matrix is singular and cannot be inversed
-var errSingular = errors.New("matrix is singular")
+// errSingular is returned if the Matrix is singular and cannot be inversed
+var errSingular = errors.New("Matrix is singular")
 
-// errNotSquare is returned if attempting to inverse a non-square matrix.
+// errNotSquare is returned if attempting to inverse a non-square Matrix.
 var errNotSquare = errors.New("only square matrices can be inverted")
 
-// Invert returns the inverse of this matrix.
-// Returns ErrSingular when the matrix is singular and doesn't have an inverse.
-// The matrix must be square, otherwise ErrNotSquare is returned.
-func (m matrix) Invert() (matrix, error) {
+// Invert returns the inverse of this Matrix.
+// Returns ErrSingular when the Matrix is singular and doesn't have an inverse.
+// The Matrix must be square, otherwise ErrNotSquare is returned.
+func (m Matrix) Invert() (Matrix, error) {
 	if !m.IsSquare() {
 		return nil, errNotSquare
 	}
@@ -206,7 +206,7 @@ func (m matrix) Invert() (matrix, error) {
 	return work.SubMatrix(0, size, size, size*2)
 }
 
-func (m matrix) gaussianElimination() error {
+func (m Matrix) gaussianElimination() error {
 	rows := len(m)
 	columns := len(m[0])
 	// Clear out the part below the main diagonal and scale the main
@@ -225,7 +225,7 @@ func (m matrix) gaussianElimination() error {
 				}
 			}
 		}
-		// If we couldn't find one, the matrix is singular.
+		// If we couldn't find one, the Matrix is singular.
 		if m[r][r] == 0 {
 			return errSingular
 		}
@@ -264,10 +264,10 @@ func (m matrix) gaussianElimination() error {
 	return nil
 }
 
-// Create a Vandermonde matrix, which is guaranteed to have the
-// property that any subset of rows that forms a square matrix
+// Create a Vandermonde Matrix, which is guaranteed to have the
+// property that any subset of rows that forms a square Matrix
 // is invertible.
-func vandermonde(rows, cols int) (matrix, error) {
+func vandermonde(rows, cols int) (Matrix, error) {
 	result, err := newMatrix(rows, cols)
 	if err != nil {
 		return nil, err

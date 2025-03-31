@@ -217,8 +217,8 @@ func WithAVXGFNI(enabled bool) Option {
 }
 
 // WithJerasureMatrix causes the encoder to build the Reed-Solomon-Vandermonde
-// matrix in the same way as done by the Jerasure library.
-// The first row and column of the coding matrix only contains 1's in this method
+// Matrix in the same way as done by the Jerasure library.
+// The first row and column of the coding Matrix only contains 1's in this method
 // so the first parity chunk is always equal to XOR of all data chunks.
 func WithJerasureMatrix() Option {
 	return func(o *options) {
@@ -228,7 +228,7 @@ func WithJerasureMatrix() Option {
 	}
 }
 
-// WithPAR1Matrix causes the encoder to build the matrix how PARv1
+// WithPAR1Matrix causes the encoder to build the Matrix how PARv1
 // does. Note that the method they use is buggy, and may lead to cases
 // where recovery is impossible, even if there are enough parity
 // shards.
@@ -240,9 +240,9 @@ func WithPAR1Matrix() Option {
 	}
 }
 
-// WithCauchyMatrix will make the encoder build a Cauchy style matrix.
+// WithCauchyMatrix will make the encoder build a Cauchy style Matrix.
 // The output of this is not compatible with the standard output.
-// A Cauchy matrix is faster to generate. This does not affect data throughput,
+// A Cauchy Matrix is faster to generate. This does not affect data throughput,
 // but will result in slightly faster start-up time.
 func WithCauchyMatrix() Option {
 	return func(o *options) {
@@ -252,20 +252,20 @@ func WithCauchyMatrix() Option {
 	}
 }
 
-// WithFastOneParityMatrix will switch the matrix to a simple xor
+// WithFastOneParityMatrix will switch the Matrix to a simple xor
 // if there is only one parity shard.
-// The PAR1 matrix already has this property so it has little effect there.
+// The PAR1 Matrix already has this property so it has little effect there.
 func WithFastOneParityMatrix() Option {
 	return func(o *options) {
 		o.fastOneParity = true
 	}
 }
 
-// WithCustomMatrix causes the encoder to use the manually specified matrix.
+// WithCustomMatrix causes the encoder to use the manually specified Matrix.
 // customMatrix represents only the parity chunks.
 // customMatrix must have at least ParityShards rows and DataShards columns.
 // It can be used for interoperability with libraries which generate
-// the matrix differently or to implement more complex coding schemes like LRC
+// the Matrix differently or to implement more complex coding schemes like LRC
 // (locally reconstructible codes).
 func WithCustomMatrix(customMatrix [][]byte) Option {
 	return func(o *options) {
