@@ -77,7 +77,7 @@ func TestInsertInvertedMatrix(t *testing.T) {
 
 	err = tree.InsertInvertedMatrix([]int{}, matrix, 5)
 	if err == nil {
-		t.Fatal("Should have failed inserting the root node matrix", matrix)
+		t.Fatal("Should have failed inserting the root node Matrix", matrix)
 	}
 
 	matrix, err = newMatrix(3, 2)
@@ -86,7 +86,7 @@ func TestInsertInvertedMatrix(t *testing.T) {
 	}
 	err = tree.InsertInvertedMatrix([]int{2}, matrix, 5)
 	if err == nil {
-		t.Fatal("Should have failed inserting a non-square matrix", matrix)
+		t.Fatal("Should have failed inserting a non-square Matrix", matrix)
 	}
 
 	matrix, err = newMatrix(3, 3)

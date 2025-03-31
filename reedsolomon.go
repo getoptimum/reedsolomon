@@ -161,14 +161,14 @@ const (
 	maxInt  = 1<<(intSize-1) - 1
 )
 
-// reedSolomon contains a matrix for a specific
+// reedSolomon contains a Matrix for a specific
 // distribution of datashards and parity shards.
 // Construct if using New()
 type reedSolomon struct {
 	dataShards   int // Number of data shards, should not be modified.
 	parityShards int // Number of parity shards, should not be modified.
 	totalShards  int // Total number of shards. Calculated, and should not be modified.
-	m            matrix
+	m            Matrix
 	tree         *inversionTree
 	parity       [][]byte
 	o            options
@@ -211,14 +211,14 @@ var ErrMaxShardNum = errors.New("cannot create Encoder with more than 256 data+p
 // ErrNotSupported is returned when an operation is not supported.
 var ErrNotSupported = errors.New("operation not supported")
 
-// buildMatrix creates the matrix to use for encoding, given the
+// buildMatrix creates the Matrix to use for encoding, given the
 // number of data shards and the number of total shards.
 //
-// The top square of the matrix is guaranteed to be an identity
-// matrix, which means that the data shards are unchanged after
+// The top square of the Matrix is guaranteed to be an identity
+// Matrix, which means that the data shards are unchanged after
 // encoding.
-func buildMatrix(dataShards, totalShards int) (matrix, error) {
-	// Start with a Vandermonde matrix.  This matrix would work,
+func buildMatrix(dataShards, totalShards int) (Matrix, error) {
+	// Start with a Vandermonde Matrix.  This Matrix would work,
 	// in theory, but doesn't have the property that the data
 	// shards are unchanged after encoding.
 	vm, err := vandermonde(totalShards, dataShards)
@@ -226,8 +226,8 @@ func buildMatrix(dataShards, totalShards int) (matrix, error) {
 		return nil, err
 	}
 
-	// Multiply by the inverse of the top square of the matrix.
-	// This will make the top square be the identity matrix, but
+	// Multiply by the inverse of the top square of the Matrix.
+	// This will make the top square be the identity Matrix, but
 	// preserve the property that any square subset of rows is
 	// invertible.
 	top, err := vm.SubMatrix(0, 0, dataShards, dataShards)
@@ -243,13 +243,13 @@ func buildMatrix(dataShards, totalShards int) (matrix, error) {
 	return vm.Multiply(topInv)
 }
 
-// buildMatrixJerasure creates the same encoding matrix as Jerasure library
+// buildMatrixJerasure creates the same encoding Matrix as Jerasure library
 //
-// The top square of the matrix is guaranteed to be an identity
-// matrix, which means that the data shards are unchanged after
+// The top square of the Matrix is guaranteed to be an identity
+// Matrix, which means that the data shards are unchanged after
 // encoding.
-func buildMatrixJerasure(dataShards, totalShards int) (matrix, error) {
-	// Start with a Vandermonde matrix.  This matrix would work,
+func buildMatrixJerasure(dataShards, totalShards int) (Matrix, error) {
+	// Start with a Vandermonde Matrix.  This Matrix would work,
 	// in theory, but doesn't have the property that the data
 	// shards are unchanged after encoding.
 	vm, err := vandermonde(totalShards, dataShards)
@@ -280,7 +280,7 @@ func buildMatrixJerasure(dataShards, totalShards int) (matrix, error) {
 			vm[r] = vm[i]
 			vm[i] = t
 		}
-		// Multiply by the inverted matrix (same as vm.Multiply(vm[0:dataShards].Invert()))
+		// Multiply by the inverted Matrix (same as vm.Multiply(vm[0:dataShards].Invert()))
 		if vm[i][i] != 1 {
 			// Make vm[i][i] = 1 by dividing the column by vm[i][i]
 			tmp := galOneOver(vm[i][i])
@@ -324,25 +324,25 @@ func buildMatrixJerasure(dataShards, totalShards int) (matrix, error) {
 	return vm, nil
 }
 
-// buildMatrixPAR1 creates the matrix to use for encoding according to
+// buildMatrixPAR1 creates the Matrix to use for encoding according to
 // the PARv1 spec, given the number of data shards and the number of
 // total shards. Note that the method they use is buggy, and may lead
 // to cases where recovery is impossible, even if there are enough
 // parity shards.
 //
-// The top square of the matrix is guaranteed to be an identity
-// matrix, which means that the data shards are unchanged after
+// The top square of the Matrix is guaranteed to be an identity
+// Matrix, which means that the data shards are unchanged after
 // encoding.
-func buildMatrixPAR1(dataShards, totalShards int) (matrix, error) {
+func buildMatrixPAR1(dataShards, totalShards int) (Matrix, error) {
 	result, err := newMatrix(totalShards, dataShards)
 	if err != nil {
 		return nil, err
 	}
 
 	for r, row := range result {
-		// The top portion of the matrix is the identity
-		// matrix, and the bottom is a transposed Vandermonde
-		// matrix starting at 1 instead of 0.
+		// The top portion of the Matrix is the identity
+		// Matrix, and the bottom is a transposed Vandermonde
+		// Matrix starting at 1 instead of 0.
 		if r < dataShards {
 			result[r][r] = 1
 		} else {
@@ -354,15 +354,15 @@ func buildMatrixPAR1(dataShards, totalShards int) (matrix, error) {
 	return result, nil
 }
 
-func buildMatrixCauchy(dataShards, totalShards int) (matrix, error) {
+func buildMatrixCauchy(dataShards, totalShards int) (Matrix, error) {
 	result, err := newMatrix(totalShards, dataShards)
 	if err != nil {
 		return nil, err
 	}
 
 	for r, row := range result {
-		// The top portion of the matrix is the identity
-		// matrix, and the bottom is a transposed Cauchy matrix.
+		// The top portion of the Matrix is the identity
+		// Matrix, and the bottom is a transposed Cauchy Matrix.
 		if r < dataShards {
 			result[r][r] = 1
 		} else {
@@ -374,9 +374,9 @@ func buildMatrixCauchy(dataShards, totalShards int) (matrix, error) {
 	return result, nil
 }
 
-// buildXorMatrix can be used to build a matrix with pure XOR
+// buildXorMatrix can be used to build a Matrix with pure XOR
 // operations if there is only one parity shard.
-func buildXorMatrix(dataShards, totalShards int) (matrix, error) {
+func buildXorMatrix(dataShards, totalShards int) (Matrix, error) {
 	if dataShards+1 != totalShards {
 		return nil, errors.New("internal error")
 	}
@@ -386,8 +386,8 @@ func buildXorMatrix(dataShards, totalShards int) (matrix, error) {
 	}
 
 	for r, row := range result {
-		// The top portion of the matrix is the identity
-		// matrix.
+		// The top portion of the Matrix is the identity
+		// Matrix.
 		if r < dataShards {
 			result[r][r] = 1
 		} else {
@@ -446,7 +446,7 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 	switch {
 	case r.o.customMatrix != nil:
 		if len(r.o.customMatrix) < parityShards {
-			return nil, errors.New("coding matrix must contain at least parityShards rows")
+			return nil, errors.New("coding Matrix must contain at least parityShards rows")
 		}
 		r.m = make([][]byte, r.totalShards)
 		for i := 0; i < dataShards; i++ {
@@ -455,7 +455,7 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 		}
 		for k, row := range r.o.customMatrix {
 			if len(row) < dataShards {
-				return nil, errors.New("coding matrix must contain at least dataShards columns")
+				return nil, errors.New("coding Matrix must contain at least dataShards columns")
 			}
 			r.m[dataShards+k] = make([]byte, dataShards)
 			copy(r.m[dataShards+k], row)
@@ -566,8 +566,8 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 
 	// Inverted matrices are cached in a tree keyed by the indices
 	// of the invalid rows of the data to reconstruct.
-	// The inversion root node will have the identity matrix as
-	// its inversion matrix because it implies there are no errors
+	// The inversion root node will have the identity Matrix as
+	// its inversion Matrix because it implies there are no errors
 	// with the original data.
 	if r.o.inversionCache {
 		r.tree = newInversionTree(dataShards, parityShards)
@@ -804,14 +804,14 @@ func (r *reedSolomon) Verify(shards [][]byte) (bool, error) {
 	return r.checkSomeShards(r.parity, shards[:r.dataShards], toCheck[:r.parityShards], len(shards[0])), nil
 }
 
-// Multiplies a subset of rows from a coding matrix by a full set of
+// Multiplies a subset of rows from a coding Matrix by a full set of
 // input totalShards to produce some output totalShards.
-// 'matrixRows' is The rows from the matrix to use.
+// 'matrixRows' is The rows from the Matrix to use.
 // 'inputs' An array of byte arrays, each of which is one input shard.
-// The number of inputs used is determined by the length of each matrix row.
+// The number of inputs used is determined by the length of each Matrix row.
 // outputs Byte arrays where the computed totalShards are stored.
 // The number of outputs computed, and the
-// number of matrix rows used, is determined by
+// number of Matrix rows used, is determined by
 // outputCount, which is the number of outputs to compute.
 func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, byteCount int) {
 	if len(outputs) == 0 {
@@ -1024,7 +1024,7 @@ func (r *reedSolomon) codeSomeShardsAVXP(matrixRows, inputs, outputs [][]byte, b
 				if len(outPer) > codeGenMaxOutputs {
 					outPer = outPer[:codeGenMaxOutputs]
 				}
-				// Generate local matrix
+				// Generate local Matrix
 				m := genCodeGenMatrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), r.o.vectorLength, tmp)
 				tmp = tmp[len(m):]
 				plan = append(plan, state{
@@ -1055,7 +1055,7 @@ func (r *reedSolomon) codeSomeShardsAVXP(matrixRows, inputs, outputs [][]byte, b
 				if len(inPer) > codeGenMaxInputs {
 					inPer = inPer[:codeGenMaxInputs]
 				}
-				// Generate local matrix
+				// Generate local Matrix
 				m := genCodeGenMatrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), r.o.vectorLength, tmp)
 				tmp = tmp[len(m):]
 				//fmt.Println("bytes:", len(inPer)*r.o.perRound, "out:", len(outPer)*r.o.perRound)
@@ -1176,7 +1176,7 @@ func (r *reedSolomon) codeSomeShardsGFNI(matrixRows, inputs, outputs [][]byte, b
 				if len(outPer) > codeGenMaxOutputs {
 					outPer = outPer[:codeGenMaxOutputs]
 				}
-				// Generate local matrix
+				// Generate local Matrix
 				m := genGFNIMatrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), make([]uint64, len(inPer)*len(outPer)))
 				plan = append(plan, state{
 					input:  inPer,
@@ -1206,7 +1206,7 @@ func (r *reedSolomon) codeSomeShardsGFNI(matrixRows, inputs, outputs [][]byte, b
 				if len(inPer) > codeGenMaxInputs {
 					inPer = inPer[:codeGenMaxInputs]
 				}
-				// Generate local matrix
+				// Generate local Matrix
 				m := genGFNIMatrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), make([]uint64, len(inPer)*len(outPer)))
 				//fmt.Println("bytes:", len(inPer)*r.o.perRound, "out:", len(outPer)*r.o.perRound)
 				plan = append(plan, state{
@@ -1485,17 +1485,17 @@ func (r *reedSolomon) reconstruct(shards [][]byte, dataOnly bool, required []boo
 		}
 	}
 
-	// Attempt to get the cached inverted matrix out of the tree
+	// Attempt to get the cached inverted Matrix out of the tree
 	// based on the indices of the invalid rows.
 	dataDecodeMatrix := r.tree.GetInvertedMatrix(invalidIndices)
 
-	// If the inverted matrix isn't cached in the tree yet we must
+	// If the inverted Matrix isn't cached in the tree yet we must
 	// construct it ourselves and insert it into the tree for the
 	// future.  In this way the inversion tree is lazily loaded.
 	if dataDecodeMatrix == nil {
-		// Pull out the rows of the matrix that correspond to the
-		// shards that we have and build a square matrix.  This
-		// matrix could be used to generate the shards that we have
+		// Pull out the rows of the Matrix that correspond to the
+		// shards that we have and build a square Matrix.  This
+		// Matrix could be used to generate the shards that we have
 		// from the original data.
 		subMatrix, _ := newMatrix(r.dataShards, r.dataShards)
 		for subMatrixRow, validIndex := range validIndices {
@@ -1503,17 +1503,17 @@ func (r *reedSolomon) reconstruct(shards [][]byte, dataOnly bool, required []boo
 				subMatrix[subMatrixRow][c] = r.m[validIndex][c]
 			}
 		}
-		// Invert the matrix, so we can go from the encoded shards
+		// Invert the Matrix, so we can go from the encoded shards
 		// back to the original data.  Then pull out the row that
 		// generates the shard that we want to decode.  Note that
-		// since this matrix maps back to the original data, it can
+		// since this Matrix maps back to the original data, it can
 		// be used to create a data shard, but not a parity shard.
 		dataDecodeMatrix, err = subMatrix.Invert()
 		if err != nil {
 			return err
 		}
 
-		// Cache the inverted matrix in the tree for future use keyed on the
+		// Cache the inverted Matrix in the tree for future use keyed on the
 		// indices of the invalid rows.
 		err = r.tree.InsertInvertedMatrix(invalidIndices, dataDecodeMatrix, r.totalShards)
 		if err != nil {
@@ -1525,7 +1525,7 @@ func (r *reedSolomon) reconstruct(shards [][]byte, dataOnly bool, required []boo
 	//
 	// The input to the coding is all of the shards we actually
 	// have, and the output is the missing data shards.  The computation
-	// is done using the special decode matrix we just built.
+	// is done using the special decode Matrix we just built.
 	outputs := make([][]byte, r.parityShards)
 	matrixRows := make([][]byte, r.parityShards)
 	outputCount := 0

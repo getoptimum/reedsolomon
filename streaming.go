@@ -126,7 +126,7 @@ func (s StreamWriteError) String() string {
 	return s.Error()
 }
 
-// rsStream contains a matrix for a specific
+// rsStream contains a Matrix for a specific
 // distribution of datashards and parity shards.
 // Construct if using NewStream()
 type rsStream struct {
