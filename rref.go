@@ -63,13 +63,8 @@ func MulVectorMatrix(v []byte, m Matrix) ([]byte, error) {
 	}
 
 	ret := make([]byte, len(m[0]))
-	var scratch byte
-	for i := 0; i < len(m[0]); i++ {
-		scratch = 0
-		for j, vectorVal := range v {
-			scratch ^= galMultiply(m[j][i], vectorVal)
-		}
-		ret[i] = scratch
+	for i, element := range v {
+		galMulSliceXor(element, m[i], ret, &defaultOptions)
 	}
 
 	return ret, nil
